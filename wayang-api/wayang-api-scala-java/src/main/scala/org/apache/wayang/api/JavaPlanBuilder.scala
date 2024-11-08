@@ -25,7 +25,7 @@ import java.util.{Collection => JavaCollection}
 import org.apache.commons.lang3.Validate
 import org.apache.wayang.api.util.DataQuantaBuilderCache
 import org.apache.wayang.basic.data.Record
-import org.apache.wayang.basic.operators.{TableSource, TextFileSource, KafkaTopicSource}
+import org.apache.wayang.basic.operators.{TableSource, ParquetSource, TextFileSource, KafkaTopicSource}
 import org.apache.wayang.commons.util.profiledb.model.Experiment
 import org.apache.wayang.core.api.WayangContext
 import org.apache.wayang.core.plan.wayangplan._
@@ -52,6 +52,15 @@ class JavaPlanBuilder(wayangCtx: WayangContext, jobName: String) {
     * @return a [[DataQuantaBuilder]] to further develop and configure the just started [[WayangPlan]]
     */
   def loadCollection[T](collection: JavaCollection[T]) = new LoadCollectionDataQuantaBuilder[T](collection)(this)
+
+  /**
+    * Read a text file and provide it as a dataset of [[String]]s, one per line.
+    *
+    * @param url the URL of the text file
+    * @return [[DataQuantaBuilder]] for the file
+    */
+  def readParquet(url: String): UnarySourceDataQuantaBuilder[UnarySourceDataQuantaBuilder[_, String], String] =
+  createSourceBuilder(new ParquetSource(url))(ClassTag(classOf[String]))
 
   /**
     * Read a text file and provide it as a dataset of [[String]]s, one per line.
